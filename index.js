@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { main } from "../functions/updatePdf.js";
+import { main } from "./functions/updatePdf.js";
 
 const app = express();
 const API_KEY = process.env.WEBHOOK_API_KEY;
