@@ -3,7 +3,6 @@ import cors from "cors";
 import { main } from "../functions/updatePdf.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.WEBHOOK_API_KEY;
 
 app.use(cors());
@@ -73,7 +72,4 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-});
+export default app;
