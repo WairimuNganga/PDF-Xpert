@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { main } from "./updatePdf.js";
+import { main } from "../functions/updatePdf.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
