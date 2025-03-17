@@ -4,7 +4,6 @@ import { main } from "./updatePdf.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 const API_KEY = process.env.WEBHOOK_API_KEY;
 
 app.use(cors());
@@ -23,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// GET /webhook (To show a message when users visit in a browser)
+// GET /webhook (For testing)
 app.get("/webhook", (req, res) => {
   res.status(200).json({
     success: true,
@@ -32,12 +31,11 @@ app.get("/webhook", (req, res) => {
   });
 });
 
-// POST /webhook (Handles webhook requests)
+// POST /webhook (Non-blocking processing)
 app.post("/webhook", async (req, res) => {
   try {
     const payload = req.body;
 
-    // Check if payload is empty
     if (!payload || Object.keys(payload).length === 0) {
       return res.status(400).json({
         success: false,
@@ -46,16 +44,24 @@ app.post("/webhook", async (req, res) => {
       });
     }
 
-    // Process the payload
-    const data = await main(payload);
-
-    // Successfully processed webhook
-    res.status(200).json({
+    // Immediately acknowledge the webhook to prevent Vercel timeouts
+    res.status(202).json({
       success: true,
-      status: "Success",
-      message: "Webhook received and processed successfully.",
-      processedData: data,
+      status: "Accepted",
+      message: "Webhook received. Processing in the background.",
     });
+
+    //Process in the background to avoid Vercel execution limits
+    setTimeout(async () => {
+      try {
+        console.log("🚀 Processing webhook payload:", payload);
+        await main(payload);
+        console.log("✅ Processing complete");
+      } catch (error) {
+        console.error("❌ Background processing error:", error);
+      }
+    }, 0);
+
   } catch (error) {
     console.error("Error processing webhook:", error);
     res.status(500).json({
@@ -67,7 +73,7 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-//Start the server
+// Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
